@@ -1,0 +1,15 @@
+shiny
+pandas
+shinyswatch
+gspread
+google-auth
+reportlab
+markdown
+requests
+msal
+openpyxl
+pillow
+office365-rest-python-client
+python-dotenv
+pytz
+faicons
