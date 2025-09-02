@@ -116,32 +116,118 @@ app_ui = ui.page_fluid(
     ui.tags.head(
         ui.tags.style(
             """
+            * {
+                box-sizing: border-box;
+            }
+            
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+                line-height: 1.6;
+                color: #2c3e50;
+            }
+            
             .logo {
                 max-width: 250px;
                 height: auto;
                 display: block;
                 margin: 0 auto 20px auto;
+                animation: fadeInDown 0.6s ease-out;
+            }
+            
+            @keyframes fadeInDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            @keyframes slideInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
             
             .waiver-accordion-container {
                 margin-bottom: 30px;
+                animation: fadeIn 0.8s ease-out 0.2s both;
             }
+            
             .accordion-instructions {
                 background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
                 padding: 15px;
-                border-radius: 8px;
+                border-radius: 12px;
                 margin-bottom: 15px;
                 font-weight: 500;
                 border-left: 4px solid #2196f3;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+                transition: all 0.3s ease;
             }
+            
+            .accordion-instructions:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+            }
+            
+            .accordion-button {
+                transition: all 0.3s ease;
+                font-weight: 500;
+            }
+            
+            .accordion-button:hover {
+                background-color: rgba(33, 150, 243, 0.05);
+            }
+            
+            .accordion-button:focus {
+                box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+            }
+            
             .waiver-content, .agreement-content {
                 max-height: 400px;
                 overflow-y: auto;
-                padding: 15px;
-                background-color: #fafafa;
-                border-radius: 5px;
-                line-height: 1.6;
+                padding: 20px;
+                background: linear-gradient(to bottom, #fafafa, #f5f5f5);
+                border-radius: 8px;
+                line-height: 1.7;
+                font-size: 15px;
+                scrollbar-width: thin;
+                scrollbar-color: #c0c0c0 #f0f0f0;
+            }
+            
+            .waiver-content::-webkit-scrollbar,
+            .agreement-content::-webkit-scrollbar {
+                width: 8px;
+            }
+            
+            .waiver-content::-webkit-scrollbar-track,
+            .agreement-content::-webkit-scrollbar-track {
+                background: #f0f0f0;
+                border-radius: 4px;
+            }
+            
+            .waiver-content::-webkit-scrollbar-thumb,
+            .agreement-content::-webkit-scrollbar-thumb {
+                background: #c0c0c0;
+                border-radius: 4px;
+                transition: background 0.3s ease;
+            }
+            
+            .waiver-content::-webkit-scrollbar-thumb:hover,
+            .agreement-content::-webkit-scrollbar-thumb:hover {
+                background: #999;
             }
             
             /* Progress Steps */
