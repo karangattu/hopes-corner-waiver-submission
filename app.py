@@ -491,6 +491,36 @@ app_ui = ui.page_fluid(
             
             $('#initials').attr('autocapitalize', 'characters');
             
+            function capitalizeFullName(name) {
+                return name.split(' ').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                ).join(' ');
+            }
+            
+            function generateInitials(name) {
+                return name.split(' ')
+                    .filter(word => word.trim() !== '')
+                    .map(word => word.charAt(0).toUpperCase())
+                    .join('');
+            }
+            
+            $('#full_name').on('blur', function() {
+                var input = $(this);
+                var currentValue = input.val().trim();
+                if (currentValue) {
+                    var capitalizedName = capitalizeFullName(currentValue);
+                    input.val(capitalizedName);
+                    input.trigger('change');
+                    
+                    var words = capitalizedName.split(' ').filter(word => word.trim() !== '');
+                    if (words.length > 1) {
+                        var initials = generateInitials(capitalizedName);
+                        $('#initials').val(initials);
+                        $('#initials').trigger('change');
+                    }
+                }
+            });
+            
             // Signature pad functionality
             var canvas = document.getElementById('signature-canvas');
             var ctx = canvas.getContext('2d');
@@ -1559,16 +1589,37 @@ def server(input, output, session):
         else:
             return ui.markdown(agreement_es)
 
-    # Add a reactive calculation for capitalized initials
     @reactive.Calc
     def capitalized_initials():
-        """Always returns the initials in uppercase"""
         initials = input.initials()
         return initials.upper() if initials else ""
+    
+    @reactive.Calc
+    def capitalized_full_name():
+        name = input.full_name()
+        if name:
+            return ' '.join(word.capitalize() for word in name.split())
+        return ""
+    
+    @reactive.Calc
+    def auto_generated_initials():
+        name = capitalized_full_name()
+        if name:
+            words = name.split()
+            initials = ''.join(word[0].upper() for word in words if word)
+            return initials
+        return ""
 
     @reactive.Effect
     @reactive.event(input.submit)
     async def handle_submit():
+        print(f"DEBUG: Submit button clicked")
+        print(f"DEBUG: Full name: '{input.full_name()}'")
+        print(f"DEBUG: Initials: '{input.initials()}'")
+        print(f"DEBUG: Waiver acknowledged: {input.waiver_read_acknowledged()}")
+        print(f"DEBUG: Agreement acknowledged: {input.agreement_read_acknowledged()}")
+        print(f"DEBUG: Signature data exists: {bool(input.signature_data())}")
+        
         if not input.full_name():
             ui.notification_show(
                 (
@@ -1629,8 +1680,8 @@ def server(input, output, session):
             )
             return
 
+        print("DEBUG: All validations passed, proceeding with submission")
         try:
-            # Trigger screenshot capture BEFORE showing progress modal
             screenshot_trigger.set(True)
             await session.send_custom_message("captureScreenshot", "")
         except Exception as e:
@@ -1660,7 +1711,7 @@ def server(input, output, session):
                         "submission_date": get_pacific_time().strftime(
                             "%Y-%m-%d %H:%M:%S"
                         ),
-                        "full_name": input.full_name(),
+                        "full_name": capitalized_full_name(),
                         "initials": input.initials().upper(),
                         "minor_names": input.minor_names() or "",
                         "signature_date": str(input.signature_date()),
@@ -1721,10 +1772,10 @@ def server(input, output, session):
 
     @reactive.Effect
     def _():
-        """Ensure initials are always capitalized"""
         current = input.initials()
         if current and current != current.upper():
             ui.update_text("initials", value=current.upper())
+    
 
 
 app = App(app_ui, server)
